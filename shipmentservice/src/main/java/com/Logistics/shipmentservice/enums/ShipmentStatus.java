@@ -8,6 +8,8 @@ public enum ShipmentStatus {
     ARRIVED_AT_WAREHOUSE,
     OUT_FOR_DELIVERY,
     DELIVERED,
-    CANCELLED
+    CANCELLED,
+    UNDELIVERABLE,
+    RETURNED, UPDATED
 
 }

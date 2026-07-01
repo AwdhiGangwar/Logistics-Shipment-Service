@@ -1,13 +1,18 @@
 package com.Logistics.shipmentservice.service;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
 import com.Logistics.shipmentservice.dto.request.CreateShipmentRequest;
+import com.Logistics.shipmentservice.dto.request.UpdateShipmentRequest;
 import com.Logistics.shipmentservice.dto.response.CreateShipmentResponse;
+import com.Logistics.shipmentservice.dto.response.GetShipmentResponse;
+import com.Logistics.shipmentservice.dto.response.UpdateShipmentResponse;
 import com.Logistics.shipmentservice.entity.ShipmentEntity;
 import com.Logistics.shipmentservice.enums.ShipmentStatus;
+import com.Logistics.shipmentservice.exception.ResourceNotFoundException;
 import com.Logistics.shipmentservice.repository.ShipmentRepository;
 @Service
 public class ShipmentServiceImpl implements ShipmentService {
@@ -73,5 +78,91 @@ public class ShipmentServiceImpl implements ShipmentService {
         response.setMessage("Shipment created successfully.");
 
         return response;
+    }
+    @Override
+    public GetShipmentResponse getShipmentById(UUID shipmentId) {
+
+        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Shipment not found with ID : " + shipmentId));
+
+        GetShipmentResponse response = new GetShipmentResponse();
+
+        response.setId(shipment.getId());
+        response.setTrackingNumber(shipment.getTrackingNumber());
+        response.setSenderId(shipment.getSenderId());
+        response.setReceiverId(shipment.getReceiverId());
+        response.setSourceAddress(shipment.getSourceAddress());
+        response.setDestinationAddress(shipment.getDestinationAddress());
+        response.setWeight(shipment.getWeight());
+        response.setShipmentType(shipment.getShipmentType());
+        response.setStatus(shipment.getStatus());
+        response.setCreatedAt(shipment.getCreatedAt());
+        response.setUpdatedAt(shipment.getUpdatedAt());
+
+        return response;
+    }
+    @Override
+    public List<GetShipmentResponse> getAllShipments() {
+
+        List<ShipmentEntity> shipments = shipmentRepository.findAll();
+
+        return shipments.stream()
+                .map(this::mapToGetShipmentResponse)
+                .toList();
+    }
+
+    private GetShipmentResponse mapToGetShipmentResponse(ShipmentEntity shipment) {
+
+        GetShipmentResponse response = new GetShipmentResponse();
+
+        response.setId(shipment.getId());
+        response.setTrackingNumber(shipment.getTrackingNumber());
+        response.setSenderId(shipment.getSenderId());
+        response.setReceiverId(shipment.getReceiverId());
+        response.setSourceAddress(shipment.getSourceAddress());
+        response.setDestinationAddress(shipment.getDestinationAddress());
+        response.setWeight(shipment.getWeight());
+        response.setShipmentType(shipment.getShipmentType());
+        response.setStatus(shipment.getStatus());
+        response.setCreatedAt(shipment.getCreatedAt());
+        response.setUpdatedAt(shipment.getUpdatedAt());
+
+        return response;
+    }
+    @Override
+public UpdateShipmentResponse updateShipment(UUID shipmentId,
+        UpdateShipmentRequest request) {
+
+    ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                    "Shipment not found with ID : " + shipmentId));
+
+    shipment.setSenderId(request.getSenderId());
+    shipment.setReceiverId(request.getReceiverId());
+    shipment.setSourceAddress(request.getSourceAddress());
+    shipment.setDestinationAddress(request.getDestinationAddress());
+    shipment.setWeight(request.getWeight());
+    shipment.setShipmentType(request.getShipmentType());
+    shipment.setUpdatedAt(LocalDateTime.now());
+
+    ShipmentEntity updatedShipment = shipmentRepository.save(shipment);
+
+    UpdateShipmentResponse response = new UpdateShipmentResponse();
+
+    response.setTrackingNumber(updatedShipment.getTrackingNumber());
+    response.setStatus(updatedShipment.getStatus());
+    response.setUpdatedAt(updatedShipment.getUpdatedAt());
+    response.setMessage("Shipment updated successfully.");
+
+    return response;
+}
+    @Override
+    public void deleteShipment(UUID shipmentId) {
+
+        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with id: " + shipmentId));
+
+        shipmentRepository.delete(shipment);
     }
 }

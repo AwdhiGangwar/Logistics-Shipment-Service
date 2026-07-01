@@ -1,4 +1,5 @@
-package com.Logistics.shipmentservice.dto;
+package com.Logistics.shipmentservice.dto.request;
+
 import java.util.UUID;
 
 import com.Logistics.shipmentservice.enums.ShipmentType;
@@ -10,12 +11,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateShipmentRequest {
+public class UpdateShipmentRequest {
 
     @NotNull(message = "Receiver ID is required")
     private UUID receiverId;
@@ -32,7 +32,7 @@ public class CreateShipmentRequest {
 
     @NotNull(message = "Shipment type is required")
     private ShipmentType shipmentType;
-    
+
     @NotNull(message = "Sender ID is required")
     private UUID senderId;
 }
