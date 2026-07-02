@@ -1,4 +1,5 @@
 package com.Logistics.shipmentservice.service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import com.Logistics.shipmentservice.entity.ShipmentEntity;
 import com.Logistics.shipmentservice.enums.ShipmentStatus;
 import com.Logistics.shipmentservice.exception.ResourceNotFoundException;
 import com.Logistics.shipmentservice.repository.ShipmentRepository;
+
 @Service
 public class ShipmentServiceImpl implements ShipmentService {
 
@@ -79,6 +81,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 
         return response;
     }
+
     @Override
     public GetShipmentResponse getShipmentById(UUID shipmentId) {
 
@@ -102,6 +105,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 
         return response;
     }
+
     @Override
     public List<GetShipmentResponse> getAllShipments() {
 
@@ -130,33 +134,35 @@ public class ShipmentServiceImpl implements ShipmentService {
 
         return response;
     }
+
     @Override
-public UpdateShipmentResponse updateShipment(UUID shipmentId,
-        UpdateShipmentRequest request) {
+    public UpdateShipmentResponse updateShipment(UUID shipmentId,
+            UpdateShipmentRequest request) {
 
-    ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
-            .orElseThrow(() -> new ResourceNotFoundException(
-                    "Shipment not found with ID : " + shipmentId));
+        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Shipment not found with ID : " + shipmentId));
 
-    shipment.setSenderId(request.getSenderId());
-    shipment.setReceiverId(request.getReceiverId());
-    shipment.setSourceAddress(request.getSourceAddress());
-    shipment.setDestinationAddress(request.getDestinationAddress());
-    shipment.setWeight(request.getWeight());
-    shipment.setShipmentType(request.getShipmentType());
-    shipment.setUpdatedAt(LocalDateTime.now());
+        shipment.setSenderId(request.getSenderId());
+        shipment.setReceiverId(request.getReceiverId());
+        shipment.setSourceAddress(request.getSourceAddress());
+        shipment.setDestinationAddress(request.getDestinationAddress());
+        shipment.setWeight(request.getWeight());
+        shipment.setShipmentType(request.getShipmentType());
+        shipment.setUpdatedAt(LocalDateTime.now());
 
-    ShipmentEntity updatedShipment = shipmentRepository.save(shipment);
+        ShipmentEntity updatedShipment = shipmentRepository.save(shipment);
 
-    UpdateShipmentResponse response = new UpdateShipmentResponse();
+        UpdateShipmentResponse response = new UpdateShipmentResponse();
 
-    response.setTrackingNumber(updatedShipment.getTrackingNumber());
-    response.setStatus(updatedShipment.getStatus());
-    response.setUpdatedAt(updatedShipment.getUpdatedAt());
-    response.setMessage("Shipment updated successfully.");
+        response.setTrackingNumber(updatedShipment.getTrackingNumber());
+        response.setStatus(updatedShipment.getStatus());
+        response.setUpdatedAt(updatedShipment.getUpdatedAt());
+        response.setMessage("Shipment updated successfully.");
 
-    return response;
-}
+        return response;
+    }
+
     @Override
     public void deleteShipment(UUID shipmentId) {
 
@@ -165,4 +171,32 @@ public UpdateShipmentResponse updateShipment(UUID shipmentId,
 
         shipmentRepository.delete(shipment);
     }
+
+    @Override
+    public List<GetShipmentResponse> getShipmentsByStatus(ShipmentStatus status) {
+
+        return shipmentRepository.findByStatus(status)
+                .stream()
+                .map(this::mapToGetShipmentResponse)
+                .toList();
+    }
+
+    @Override
+    public List<GetShipmentResponse> getShipmentsBySenderId(UUID senderId) {
+
+        return shipmentRepository.findBySenderId(senderId)
+                .stream()
+                .map(this::mapToGetShipmentResponse)
+                .toList();
+    }
+    
+    @Override
+    public List<GetShipmentResponse> getShipmentsByReceiverId(UUID receiverId) {
+
+        return shipmentRepository.findByReceiverId(receiverId)
+                .stream()
+                .map(this::mapToGetShipmentResponse)
+                .toList();
+    }
+
 }

@@ -1,6 +1,8 @@
 package com.Logistics.shipmentservice.repository;
 
 import com.Logistics.shipmentservice.entity.ShipmentEntity;
+import com.Logistics.shipmentservice.enums.ShipmentStatus;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,5 +20,7 @@ public interface ShipmentRepository extends JpaRepository<ShipmentEntity, UUID> 
     List<ShipmentEntity> findBySenderId(UUID senderId);
 
     List<ShipmentEntity> findByReceiverId(UUID receiverId);
+
+    List<ShipmentEntity> findByStatus(ShipmentStatus status);
 
 }

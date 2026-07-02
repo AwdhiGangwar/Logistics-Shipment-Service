@@ -7,6 +7,7 @@ import com.Logistics.shipmentservice.dto.request.UpdateShipmentRequest;
 import com.Logistics.shipmentservice.dto.response.CreateShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.GetShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.UpdateShipmentResponse;
+import com.Logistics.shipmentservice.enums.ShipmentStatus;
 
 public interface ShipmentService {
 
@@ -19,4 +20,10 @@ public interface ShipmentService {
     UpdateShipmentResponse updateShipment(UUID shipmentId, UpdateShipmentRequest request);
 
     void deleteShipment(UUID shipmentId);
+
+    List<GetShipmentResponse> getShipmentsByStatus(ShipmentStatus status);
+
+    List<GetShipmentResponse> getShipmentsBySenderId(UUID senderId);
+
+    List<GetShipmentResponse> getShipmentsByReceiverId(UUID receiverId);
 }

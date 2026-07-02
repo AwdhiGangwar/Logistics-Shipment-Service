@@ -19,6 +19,7 @@ import com.Logistics.shipmentservice.dto.request.UpdateShipmentRequest;
 import com.Logistics.shipmentservice.dto.response.CreateShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.GetShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.UpdateShipmentResponse;
+import com.Logistics.shipmentservice.enums.ShipmentStatus;
 import com.Logistics.shipmentservice.service.ShipmentService;
 
 import jakarta.validation.Valid;
@@ -75,4 +76,33 @@ public class ShipmentController {
 
         return ResponseEntity.ok("Shipment deleted successfully");
     }
+
+    @GetMapping("/status/{status}")
+public ResponseEntity<List<GetShipmentResponse>> getShipmentsByStatus(
+        @PathVariable ShipmentStatus status) {
+
+    List<GetShipmentResponse> response = shipmentService.getShipmentsByStatus(status);
+
+    return ResponseEntity.ok(response);
+}
+
+@GetMapping("/sender/{senderId}")
+public ResponseEntity<List<GetShipmentResponse>> getShipmentsBySenderId(
+        @PathVariable UUID senderId) {
+
+    List<GetShipmentResponse> response =
+            shipmentService.getShipmentsBySenderId(senderId);
+
+    return ResponseEntity.ok(response);
+}
+
+@GetMapping("/receiver/{receiverId}")
+public ResponseEntity<List<GetShipmentResponse>> getShipmentsByReceiverId(
+        @PathVariable UUID receiverId) {
+
+    List<GetShipmentResponse> response =
+            shipmentService.getShipmentsByReceiverId(receiverId);
+
+    return ResponseEntity.ok(response);
+}
 }
