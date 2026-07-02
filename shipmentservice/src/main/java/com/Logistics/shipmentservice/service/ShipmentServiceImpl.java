@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.Logistics.shipmentservice.dto.request.CreateShipmentRequest;
@@ -13,8 +17,10 @@ import com.Logistics.shipmentservice.dto.response.GetShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.UpdateShipmentResponse;
 import com.Logistics.shipmentservice.entity.ShipmentEntity;
 import com.Logistics.shipmentservice.enums.ShipmentStatus;
+import com.Logistics.shipmentservice.enums.ShipmentType;
 import com.Logistics.shipmentservice.exception.ResourceNotFoundException;
 import com.Logistics.shipmentservice.repository.ShipmentRepository;
+import com.Logistics.shipmentservice.specifications.ShipmentSpecification;
 
 @Service
 public class ShipmentServiceImpl implements ShipmentService {
@@ -87,7 +93,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 
         ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Shipment not found with ID : " + shipmentId));
+                "Shipment not found with ID : " + shipmentId));
 
         GetShipmentResponse response = new GetShipmentResponse();
 
@@ -107,13 +113,31 @@ public class ShipmentServiceImpl implements ShipmentService {
     }
 
     @Override
-    public List<GetShipmentResponse> getAllShipments() {
+    public Page<GetShipmentResponse> getAllShipments(
+            int page,
+            int size,
+            String sortBy,
+            String direction,
+            ShipmentStatus status,
+            ShipmentType shipmentType,
+            UUID senderId,
+            UUID receiverId) {
 
-        List<ShipmentEntity> shipments = shipmentRepository.findAll();
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
 
-        return shipments.stream()
-                .map(this::mapToGetShipmentResponse)
-                .toList();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<ShipmentEntity> shipmentPage = shipmentRepository.findAll(
+                ShipmentSpecification.filterShipments(
+                        status,
+                        shipmentType,
+                        senderId,
+                        receiverId),
+                pageable);
+
+        return shipmentPage.map(this::mapToGetShipmentResponse);
     }
 
     private GetShipmentResponse mapToGetShipmentResponse(ShipmentEntity shipment) {
@@ -141,7 +165,7 @@ public class ShipmentServiceImpl implements ShipmentService {
 
         ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Shipment not found with ID : " + shipmentId));
+                "Shipment not found with ID : " + shipmentId));
 
         shipment.setSenderId(request.getSenderId());
         shipment.setReceiverId(request.getReceiverId());
@@ -189,7 +213,7 @@ public class ShipmentServiceImpl implements ShipmentService {
                 .map(this::mapToGetShipmentResponse)
                 .toList();
     }
-    
+
     @Override
     public List<GetShipmentResponse> getShipmentsByReceiverId(UUID receiverId) {
 

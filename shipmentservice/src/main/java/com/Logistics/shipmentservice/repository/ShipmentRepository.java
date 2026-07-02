@@ -1,17 +1,20 @@
 package com.Logistics.shipmentservice.repository;
 
-import com.Logistics.shipmentservice.entity.ShipmentEntity;
-import com.Logistics.shipmentservice.enums.ShipmentStatus;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+import com.Logistics.shipmentservice.entity.ShipmentEntity;
+import com.Logistics.shipmentservice.enums.ShipmentStatus;
+
 @Repository
-public interface ShipmentRepository extends JpaRepository<ShipmentEntity, UUID> {
+public interface ShipmentRepository
+        extends JpaRepository<ShipmentEntity, UUID>,
+                JpaSpecificationExecutor<ShipmentEntity> {
 
     Optional<ShipmentEntity> findByTrackingNumber(String trackingNumber);
 
