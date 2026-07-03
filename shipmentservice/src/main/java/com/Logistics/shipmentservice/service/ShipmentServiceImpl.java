@@ -12,13 +12,16 @@ import org.springframework.stereotype.Service;
 
 import com.Logistics.shipmentservice.dto.request.CreateShipmentRequest;
 import com.Logistics.shipmentservice.dto.request.UpdateShipmentRequest;
+import com.Logistics.shipmentservice.dto.request.UpdateShipmentStatusRequest;
 import com.Logistics.shipmentservice.dto.response.CreateShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.GetShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.UpdateShipmentResponse;
 import com.Logistics.shipmentservice.entity.ShipmentEntity;
 import com.Logistics.shipmentservice.enums.ShipmentStatus;
 import com.Logistics.shipmentservice.enums.ShipmentType;
+import com.Logistics.shipmentservice.event.ShipmentStatusUpdated;
 import com.Logistics.shipmentservice.exception.ResourceNotFoundException;
+import com.Logistics.shipmentservice.producer.ShipmentEventProducer;
 import com.Logistics.shipmentservice.repository.ShipmentRepository;
 import com.Logistics.shipmentservice.specifications.ShipmentSpecification;
 
@@ -26,9 +29,11 @@ import com.Logistics.shipmentservice.specifications.ShipmentSpecification;
 public class ShipmentServiceImpl implements ShipmentService {
 
     private final ShipmentRepository shipmentRepository;
+    private final ShipmentEventProducer shipmentEventProducer;
 
-    public ShipmentServiceImpl(ShipmentRepository shipmentRepository) {
+    public ShipmentServiceImpl(ShipmentRepository shipmentRepository, ShipmentEventProducer shipmentEventProducer) {
         this.shipmentRepository = shipmentRepository;
+        this.shipmentEventProducer = shipmentEventProducer;
     }
 
     @Override
@@ -223,4 +228,51 @@ public class ShipmentServiceImpl implements ShipmentService {
                 .toList();
     }
 
+    @Override
+    public UpdateShipmentResponse updateShipmentStatus(
+            UUID shipmentId,
+            UpdateShipmentStatusRequest request) {
+
+        // 1. Shipment find karo
+        ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                "Shipment not found with ID : " + shipmentId));
+
+        // 2. Purana status save karo
+        String oldStatus = shipment.getStatus().name();
+
+        if (shipment.getStatus() == request.getStatus()) {
+            throw new IllegalArgumentException(
+                    "Shipment is already in status: " + request.getStatus());
+        }
+        // 3. Naya status set karo
+        shipment.setStatus(request.getStatus());
+        shipment.setUpdatedAt(LocalDateTime.now());
+
+        // 4. Database mein save karo
+        ShipmentEntity updatedShipment
+                = shipmentRepository.save(shipment);
+
+        // 5. Kafka event banao
+        ShipmentStatusUpdated event = ShipmentStatusUpdated.builder()
+                .shipmentId(updatedShipment.getId())
+                .trackingNumber(updatedShipment.getTrackingNumber())
+                .oldStatus(oldStatus)
+                .newStatus(updatedShipment.getStatus().name())
+                .updatedAt(updatedShipment.getUpdatedAt())
+                .build();
+
+        // 6. Kafka par publish karo
+        shipmentEventProducer.publishStatusUpdatedEvent(event);
+
+        // 7. Response banao
+        UpdateShipmentResponse response = new UpdateShipmentResponse();
+
+        response.setTrackingNumber(updatedShipment.getTrackingNumber());
+        response.setStatus(updatedShipment.getStatus());
+        response.setUpdatedAt(updatedShipment.getUpdatedAt());
+        response.setMessage("Shipment status updated successfully.");
+
+        return response;
+    }
 }

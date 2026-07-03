@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Logistics.shipmentservice.dto.request.CreateShipmentRequest;
 import com.Logistics.shipmentservice.dto.request.UpdateShipmentRequest;
+import com.Logistics.shipmentservice.dto.request.UpdateShipmentStatusRequest;
 import com.Logistics.shipmentservice.dto.response.CreateShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.GetShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.UpdateShipmentResponse;
@@ -118,8 +120,18 @@ public class ShipmentController {
     public ResponseEntity<List<GetShipmentResponse>> getShipmentsByReceiverId(
             @PathVariable UUID receiverId) {
 
-        List<GetShipmentResponse> response
-                = shipmentService.getShipmentsByReceiverId(receiverId);
+        List<GetShipmentResponse> response = shipmentService.getShipmentsByReceiverId(receiverId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{shipmentId}/status")
+    public ResponseEntity<UpdateShipmentResponse> updateShipmentStatus(
+            @PathVariable UUID shipmentId,
+            @Valid @RequestBody UpdateShipmentStatusRequest request) {
+
+        UpdateShipmentResponse response
+                = shipmentService.updateShipmentStatus(shipmentId, request);
 
         return ResponseEntity.ok(response);
     }

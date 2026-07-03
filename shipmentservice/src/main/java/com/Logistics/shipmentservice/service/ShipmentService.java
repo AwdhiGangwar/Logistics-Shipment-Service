@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 
 import com.Logistics.shipmentservice.dto.request.CreateShipmentRequest;
 import com.Logistics.shipmentservice.dto.request.UpdateShipmentRequest;
+import com.Logistics.shipmentservice.dto.request.UpdateShipmentStatusRequest;
 import com.Logistics.shipmentservice.dto.response.CreateShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.GetShipmentResponse;
 import com.Logistics.shipmentservice.dto.response.UpdateShipmentResponse;
@@ -39,4 +40,9 @@ public interface ShipmentService {
     List<GetShipmentResponse> getShipmentsBySenderId(UUID senderId);
 
     List<GetShipmentResponse> getShipmentsByReceiverId(UUID receiverId);
+
+    UpdateShipmentResponse updateShipmentStatus(
+        UUID shipmentId,
+        UpdateShipmentStatusRequest request
+);
 }
