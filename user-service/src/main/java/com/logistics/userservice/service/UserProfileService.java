@@ -1,19 +1,21 @@
 package com.logistics.userservice.service;
 
+import java.util.UUID;
+
 import com.logistics.userservice.dto.ProfileRequest;
 import com.logistics.userservice.dto.ProfileResponse;
 
 public interface UserProfileService {
 
-    ProfileResponse createProfile(Long userId,
+    ProfileResponse createProfile(UUID userId,
                                   String role,
                                   ProfileRequest request);
 
-    ProfileResponse getProfile(Long userId);
+    ProfileResponse getProfile(UUID userId);
 
-    ProfileResponse updateProfile(Long userId,
+    ProfileResponse updateProfile(UUID userId,
                                   ProfileRequest request);
 
-    void deleteProfile(Long userId);
+    void deleteProfile(UUID userId);
 
 }

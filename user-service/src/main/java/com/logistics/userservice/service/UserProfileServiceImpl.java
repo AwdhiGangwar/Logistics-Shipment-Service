@@ -1,14 +1,17 @@
-package com.logistics.userservice.service.impl;
+package com.logistics.userservice.service;
+
+import java.util.UUID;
+import org.springframework.stereotype.Service;
 
 import com.logistics.userservice.dto.ProfileRequest;
 import com.logistics.userservice.dto.ProfileResponse;
 import com.logistics.userservice.entity.UserProfile;
+import com.logistics.userservice.exception.ProfileAlreadyExistsException;
 import com.logistics.userservice.exception.ProfileNotFoundException;
 import com.logistics.userservice.repository.UserProfileRepository;
 import com.logistics.userservice.service.UserProfileService;
+
 import lombok.RequiredArgsConstructor;
-import com.logistics.userservice.exception.ProfileAlreadyExistsException;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -16,10 +19,8 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     private final UserProfileRepository repository;
 
-   @Override
-public ProfileResponse createProfile(Long userId,
-                                     String role,
-                                     ProfileRequest request) {
+@Override
+public ProfileResponse createProfile(UUID userId,String role ,ProfileRequest request) {
 
     if (repository.existsByUserId(userId)) {
         throw new ProfileAlreadyExistsException("Profile already exists.");
@@ -39,7 +40,7 @@ public ProfileResponse createProfile(Long userId,
 }
 
     @Override
-    public ProfileResponse getProfile(Long userId) {
+    public ProfileResponse getProfile(UUID userId) {
 
         UserProfile profile = repository.findByUserId(userId)
                 .orElseThrow(() ->
@@ -50,8 +51,7 @@ public ProfileResponse createProfile(Long userId,
     }
 
     @Override
-    public ProfileResponse updateProfile(Long userId,
-                                         ProfileRequest request) {
+    public ProfileResponse updateProfile(UUID userId,ProfileRequest request) {
 
         UserProfile profile = repository.findByUserId(userId)
                 .orElseThrow(() ->
@@ -68,7 +68,7 @@ public ProfileResponse createProfile(Long userId,
     }
 
     @Override
-    public void deleteProfile(Long userId) {
+    public void deleteProfile(UUID userId) {
 
         if (!repository.existsByUserId(userId)) {
             throw new ProfileNotFoundException("Profile not found.");

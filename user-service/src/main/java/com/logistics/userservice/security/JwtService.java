@@ -1,36 +1,34 @@
 package com.logistics.userservice.security;
+import java.nio.charset.StandardCharsets;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
 
     @Value("${jwt.secret}")
     private String secret;
+private SecretKey getSigningKey() {
 
-    private Key getSigningKey() {
-
-        byte[] key = Decoders.BASE64.decode(secret);
-
-        return Keys.hmacShaKeyFor(key);
-
-    }
+    return Keys.hmacShaKeyFor(
+            secret.getBytes(StandardCharsets.UTF_8)
+    );
+}
 
     public Claims extractAllClaims(String token) {
 
         return Jwts.parser()
-                .verifyWith((javax.crypto.SecretKey) getSigningKey())
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
     }
 
     public boolean isTokenValid(String token) {

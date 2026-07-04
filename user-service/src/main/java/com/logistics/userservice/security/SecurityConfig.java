@@ -1,4 +1,4 @@
-package com.logistics.userservice.config;
+package com.logistics.userservice.security;
 
 import com.logistics.userservice.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;

@@ -1,14 +1,17 @@
 package com.logistics.authservice.security;
 
-import io.jsonwebtoken.Jwts;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
-import com.logistics.authservice.entity.UserEntity;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.logistics.authservice.entity.UserEntity;
+
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import java.nio.charset.StandardCharsets;
 
 @Service
 public class JwtService {
@@ -28,15 +31,24 @@ public class JwtService {
 // Generate a JWT token for the authenticated user
 
     public String generateToken(UserEntity user) {
-        System.out.println("Step 4");
+
         return Jwts.builder()
                 .subject(user.getEmail())
-                .claim("role", user.getRole().name())
+                .claim(
+                        "userId",
+                        user.getId().toString()
+                )
+                .claim(
+                        "role",
+                        user.getRole().name()
+                )
                 .issuedAt(new Date())
                 .expiration(
                         new Date(
                                 System.currentTimeMillis()
-                                + expirationTime))
+                                + expirationTime
+                        )
+                )
                 .signWith(getSigningKey())
                 .compact();
     }
