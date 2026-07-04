@@ -34,6 +34,7 @@ public class JwtService {
 
     public String generateToken(UserEntity user) {
 
+
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("userId", user.getId().toString())
