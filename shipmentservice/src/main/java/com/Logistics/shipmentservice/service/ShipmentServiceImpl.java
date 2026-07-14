@@ -1,5 +1,5 @@
 package com.Logistics.shipmentservice.service;
-
+import com.Logistics.shipmentservice.security.JwtService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -27,21 +27,27 @@ import com.Logistics.shipmentservice.specifications.ShipmentSpecification;
 
 @Service
 public class ShipmentServiceImpl implements ShipmentService {
-
+    private static final String SHIPMENT_NOT_FOUND = "Shipment not found with ID : ";
+    private final JwtService jwtService;
     private final ShipmentRepository shipmentRepository;
     private final ShipmentEventProducer shipmentEventProducer;
 
-    public ShipmentServiceImpl(ShipmentRepository shipmentRepository, ShipmentEventProducer shipmentEventProducer) {
+    public ShipmentServiceImpl(ShipmentRepository shipmentRepository, ShipmentEventProducer shipmentEventProducer , JwtService jwtService) {
         this.shipmentRepository = shipmentRepository;
         this.shipmentEventProducer = shipmentEventProducer;
+        this.jwtService = jwtService;
     }
 
     @Override
-    public CreateShipmentResponse createShipment(CreateShipmentRequest request) {
+    public CreateShipmentResponse createShipment(CreateShipmentRequest request , String authHeader) {
+
+        String token = authHeader.substring(7); // "Bearer " ko hatao
+        
+        UUID senderId = extractSenderIdFromToken(token); // JWT token se senderId nikalne ka logic implement karo
 
         String trackingNumber = generateTrackingNumber();
 
-        ShipmentEntity shipment = mapToEntity(request, trackingNumber);
+        ShipmentEntity shipment = mapToEntity(request, trackingNumber, senderId);
 
         ShipmentEntity savedShipment = shipmentRepository.save(shipment);
 
@@ -60,13 +66,17 @@ public class ShipmentServiceImpl implements ShipmentService {
         return trackingNumber;
     }
 
+    private UUID extractSenderIdFromToken(String token) {
+        return jwtService.extractUserId(token);
+    }
+
     private ShipmentEntity mapToEntity(CreateShipmentRequest request,
-            String trackingNumber) {
+            String trackingNumber , UUID senderId) {
 
         ShipmentEntity shipment = new ShipmentEntity();
 
         shipment.setTrackingNumber(trackingNumber);
-        shipment.setSenderId(request.getSenderId());
+        shipment.setSenderId(senderId);
         shipment.setReceiverId(request.getReceiverId());
         shipment.setSourceAddress(request.getSourceAddress());
         shipment.setDestinationAddress(request.getDestinationAddress());
@@ -97,8 +107,8 @@ public class ShipmentServiceImpl implements ShipmentService {
     public GetShipmentResponse getShipmentById(UUID shipmentId) {
 
         ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                "Shipment not found with ID : " + shipmentId));
+            .orElseThrow(() -> new ResourceNotFoundException(
+                SHIPMENT_NOT_FOUND + shipmentId));
 
         GetShipmentResponse response = new GetShipmentResponse();
 
@@ -169,10 +179,9 @@ public class ShipmentServiceImpl implements ShipmentService {
             UpdateShipmentRequest request) {
 
         ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                "Shipment not found with ID : " + shipmentId));
+            .orElseThrow(() -> new ResourceNotFoundException(
+                SHIPMENT_NOT_FOUND + shipmentId));
 
-        shipment.setSenderId(request.getSenderId());
         shipment.setReceiverId(request.getReceiverId());
         shipment.setSourceAddress(request.getSourceAddress());
         shipment.setDestinationAddress(request.getDestinationAddress());
@@ -235,8 +244,8 @@ public class ShipmentServiceImpl implements ShipmentService {
 
         // 1. Shipment find karo
         ShipmentEntity shipment = shipmentRepository.findById(shipmentId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                "Shipment not found with ID : " + shipmentId));
+            .orElseThrow(() -> new ResourceNotFoundException(
+                SHIPMENT_NOT_FOUND + shipmentId));
 
         // 2. Purana status save karo
         String oldStatus = shipment.getStatus().name();

@@ -32,7 +32,5 @@ public class CreateShipmentRequest {
 
     @NotNull(message = "Shipment type is required")
     private ShipmentType shipmentType;
-    
-    @NotNull(message = "Sender ID is required")
-    private UUID senderId;
+
 }

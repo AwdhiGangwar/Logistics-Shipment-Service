@@ -16,7 +16,7 @@ import com.Logistics.shipmentservice.enums.ShipmentType;
 
 public interface ShipmentService {
 
-    CreateShipmentResponse createShipment(CreateShipmentRequest request);
+    CreateShipmentResponse createShipment(CreateShipmentRequest request , String authHeader);
 
     GetShipmentResponse getShipmentById(UUID shipmentId);
 

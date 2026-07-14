@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,9 +42,11 @@ public class ShipmentController {
 
     @PostMapping
     public ResponseEntity<CreateShipmentResponse> createShipment(
-            @Valid @RequestBody CreateShipmentRequest request) {
+    @RequestHeader("Authorization") String authHeader,
+    @Valid @RequestBody CreateShipmentRequest request
+) {
 
-        CreateShipmentResponse response = shipmentService.createShipment(request);
+        CreateShipmentResponse response = shipmentService.createShipment(request, authHeader);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
