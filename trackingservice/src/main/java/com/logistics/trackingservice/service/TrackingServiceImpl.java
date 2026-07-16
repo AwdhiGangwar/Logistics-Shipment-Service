@@ -9,7 +9,6 @@ import com.logistics.trackingservice.entity.TrackingEvent;
 import com.logistics.trackingservice.enums.TrackingStatus;
 import com.logistics.trackingservice.event.ShipmentStatusUpdated;
 import com.logistics.trackingservice.repository.TrackingEventRepository;
-import com.logistics.trackingservice.service.TrackingService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,12 +36,12 @@ public class TrackingServiceImpl implements TrackingService {
     @Override
     public List<TrackingEvent> getTrackingHistoryByShipmentId(UUID shipmentId) {
 
-        return repository.findByShipmentIdOrderByUpdatedAtAsc(shipmentId);
+        return repository.findByShipmentIdOrderByEventTimeAsc(shipmentId);
     }
 
     @Override
     public List<TrackingEvent> getTrackingHistoryByTrackingNumber(String trackingNumber) {
 
-        return repository.findByTrackingNumberOrderByUpdatedAtAsc(trackingNumber);
+        return repository.findByTrackingNumberOrderByEventTimeAsc(trackingNumber);
     }
 }

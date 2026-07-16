@@ -1,14 +1,16 @@
 package com.logistics.trackingservice.repository;
-import com.logistics.trackingservice.entity.TrackingEvent;
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.logistics.trackingservice.entity.TrackingEvent;
 
 public interface TrackingEventRepository
         extends JpaRepository<TrackingEvent, UUID> {
 
-    List<TrackingEvent> findByShipmentIdOrderByUpdatedAtAsc(UUID shipmentId);
+    List<TrackingEvent> findByShipmentIdOrderByEventTimeAsc(UUID shipmentId);
 
-    List<TrackingEvent> findByTrackingNumberOrderByUpdatedAtAsc(String trackingNumber);
+    List<TrackingEvent> findByTrackingNumberOrderByEventTimeAsc(String trackingNumber);
 
 }

@@ -3,7 +3,7 @@ package com.logistics.trackingservice.enums;
 
 public enum TrackingStatus {
 
-     CREATED,
+    CREATED,
     PICKED_UP,
     IN_TRANSIT,
     ARRIVED_AT_WAREHOUSE,
@@ -11,7 +11,6 @@ public enum TrackingStatus {
     DELIVERED,
     CANCELLED,
     UNDELIVERABLE,
-    RETURNED,
-    UPDATED
+    RETURNED, UPDATED
 
-} 
+}

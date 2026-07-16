@@ -1,5 +1,4 @@
 package com.Logistics.shipmentservice.service;
-import com.Logistics.shipmentservice.security.JwtService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +22,7 @@ import com.Logistics.shipmentservice.event.ShipmentStatusUpdated;
 import com.Logistics.shipmentservice.exception.ResourceNotFoundException;
 import com.Logistics.shipmentservice.producer.ShipmentEventProducer;
 import com.Logistics.shipmentservice.repository.ShipmentRepository;
+import com.Logistics.shipmentservice.security.JwtService;
 import com.Logistics.shipmentservice.specifications.ShipmentSpecification;
 
 @Service
@@ -51,7 +51,20 @@ public class ShipmentServiceImpl implements ShipmentService {
 
         ShipmentEntity savedShipment = shipmentRepository.save(shipment);
 
+// Kafka Event
+        ShipmentStatusUpdated event = ShipmentStatusUpdated.builder()
+                .shipmentId(savedShipment.getId())
+                .trackingNumber(savedShipment.getTrackingNumber())
+                .oldStatus(null)
+                .newStatus(savedShipment.getStatus().name())
+                .updatedAt(savedShipment.getCreatedAt())
+                .build();
+
+// Publish Event
+        shipmentEventProducer.publishStatusUpdatedEvent(event);
+
         return mapToResponse(savedShipment);
+
     }
 
     private String generateTrackingNumber() {
