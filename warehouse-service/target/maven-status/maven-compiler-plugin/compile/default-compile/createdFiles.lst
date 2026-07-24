@@ -1,0 +1,9 @@
+com\logistics\warehouseservice\service\WarehouseLocationServiceImpl.class
+com\logistics\warehouseservice\dto\WarehouseLocationRequest.class
+com\logistics\warehouseservice\WarehouseServiceApplication.class
+com\logistics\warehouseservice\service\WarehouseLocationService.class
+com\logistics\warehouseservice\entity\WarehouseLocation.class
+com\logistics\warehouseservice\controller\WarehouseLocationController.class
+com\logistics\warehouseservice\dto\WarehouseLocationResponse.class
+com\logistics\warehouseservice\repository\WarehouseLocationRepository.class
+com\logistics\warehouseservice\dto\WarehouseLocationResponse$WarehouseLocationResponseBuilder.class
