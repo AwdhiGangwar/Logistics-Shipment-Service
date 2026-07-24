@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.logistics.trackingservice.entity.TrackingEvent;
 import com.logistics.trackingservice.enums.TrackingStatus;
 import com.logistics.trackingservice.event.ShipmentStatusUpdated;
+import com.logistics.trackingservice.exception.ResourceNotFoundException;
 import com.logistics.trackingservice.repository.TrackingEventRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -36,12 +37,28 @@ public class TrackingServiceImpl implements TrackingService {
     @Override
     public List<TrackingEvent> getTrackingHistoryByShipmentId(UUID shipmentId) {
 
-        return repository.findByShipmentIdOrderByEventTimeAsc(shipmentId);
+        List<TrackingEvent> trackingEvents
+                = repository.findByShipmentIdOrderByEventTimeAsc(shipmentId);
+
+        if (trackingEvents.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No tracking history found for shipment id: " + shipmentId);
+        }
+
+        return trackingEvents;
     }
 
-    @Override
+        @Override
     public List<TrackingEvent> getTrackingHistoryByTrackingNumber(String trackingNumber) {
 
-        return repository.findByTrackingNumberOrderByEventTimeAsc(trackingNumber);
+        List<TrackingEvent> trackingEvents
+                = repository.findByTrackingNumberOrderByEventTimeAsc(trackingNumber);
+
+        if (trackingEvents.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No tracking history found for tracking number: " + trackingNumber);
+        }
+
+        return trackingEvents;
     }
 }
